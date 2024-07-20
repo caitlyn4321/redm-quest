@@ -1,0 +1,20 @@
+.form-outter-container {
+    height: 55vh; /* 100% - 10% top margin - 10% bottom margin */
+    margin: 20vh; /* 10% margin from all sides */
+    padding: 1em; /* Optional: some padding to ensure form doesn't touch the edges */
+    background-image: url('assets/paperbackground.jpg');
+    background-size: cover; /* Ensure the image covers the entire container */
+    background-position: center; /* Center the image in the container */
+    border: 5px solid black; /* Add a thick black border */
+    border-radius: 15px; /* Round the corners of the border */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Align children vertically */
+    justify-content: space-between; /* Align children to the bottom */
+}
+
+.form-outter-container img {
+    max-height: 75%; /* 75% of the container's height */
+    object-fit: contain; /* Maintains aspect ratio without cropping */
+    display: block; /* Allows margin: auto to work for horizontal centering */
+    margin: auto; /* Centers horizontally */
+}
