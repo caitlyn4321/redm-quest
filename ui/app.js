@@ -5,17 +5,31 @@ const app = createApp({
         return {
             page: 0, 
             meta : null,
+            quests: {},
+            quest_entries: {},
         };
     },
     methods: {
         handleMessage(event) {
             if (event.data.type === 'display') {
-                this.page = 1;
+                this.setpage(1);
                 console.log("display");
+            } else if (event.data.type === 'questlist') {
+                this.setpage(2);
+                console.log("Quest Editor");
+            } else if (event.data.type === 'questentries') {
+                this.setpage(3);
+                console.log("Quest Entry Editor");
             }
+
             if (event.data.meta) {
                 this.meta = event.data.meta;
-                console.table(this.meta);
+            }
+            if (event.data.quests) {
+                this.quests = event.data.quests;
+            }
+            if (event.data.questentries) {
+                this.quest_entries = event.data.questentries;
             }
         },
         handleKeydown(event) {
@@ -24,8 +38,23 @@ const app = createApp({
                 this.close(null);
             }
         },
+        setpage(page) {
+            this.page = page;
+        },
+        selectQuest(data) {
+            this.setpage(3);
+
+            fetch(`https://${GetParentResourceName()}/selectquest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
         close(data) {
-            this.page = 0;
+            this.setpage(0);
 
             fetch(`https://${GetParentResourceName()}/close`, {
                 method: 'POST',

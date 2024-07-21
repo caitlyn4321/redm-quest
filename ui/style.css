@@ -10,6 +10,7 @@
     display: flex; /* Use flexbox for layout */
     flex-direction: column; /* Align children vertically */
     justify-content: space-between; /* Align children to the bottom */
+    overflow-y:auto;
 }
 
 .form-outter-container img {
@@ -17,4 +18,25 @@
     object-fit: contain; /* Maintains aspect ratio without cropping */
     display: block; /* Allows margin: auto to work for horizontal centering */
     margin: auto; /* Centers horizontally */
+}
+
+.form-outter-container ul li {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.form-outter-container ul li {
+    list-style-type: none; /* Remove bullet points */
+    margin: 0.5em 0; /* Add some space between list items */
+    border: 1px solid black; /* Add a thin black border */
+    border-radius: 5px; /* Round the corners of the border */
+    background-color:rgb(202, 184, 130);
+    margin-left: 0;
+    padding: 0.5em; /* Add some padding inside the border */
+}
+
+.form-outter-container ul li img {
+    list-style-type: none; /* Remove bullet points */
+    height: 100px; /* Set a fixed height */
+    width: auto;
 }

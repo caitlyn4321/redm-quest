@@ -157,3 +157,39 @@ AddEventHandler(Config.scriptname..":givemap", function(quest)
 
     exports.vorp_inventory:addItem(_source, Config.mapitem, 1, {quest = quest},nil)
 end)
+
+RegisterServerEvent(Config.scriptname..":listquests")
+AddEventHandler(Config.scriptname..":listquests", function()
+    local _source=source
+
+    exports.ghmattimysql:execute("SELECT * FROM quests;", {}, function(result)
+        if #result>0 then
+            local quests = {}
+            for _,v in pairs(result) do
+                table.insert(quests, {id = v.id, name = v.name, desc = v.desc, config= json.decode(v.config)})
+            end
+            TriggerClientEvent(Config.scriptname..":listquests", _source, quests)
+        end
+    end)
+end)
+
+RegisterServerEvent(Config.scriptname..":viewquest")
+AddEventHandler(Config.scriptname..":viewquest", function(quest)
+    local _source=source
+
+    print("Quest ID: "..quest)
+    exports.ghmattimysql:execute("SELECT * FROM quests_entries WHERE quest = @quest order by id asc;", {["@quest"] = quest}, function(result)
+        print("After Query")
+        if #result>0 then
+            print("found results")
+            local quest_entries = {}
+            for _,v in pairs(result) do
+                table.insert(quest_entries, {quest = quest, id = v.id, desc = v.desc, config= json.decode(v.config)})
+            end
+            TriggerClientEvent(Config.scriptname..":viewquest", _source, quest_entries)
+            print("Sending back to client")
+        else
+            print("No results")
+        end
+    end)
+end)
