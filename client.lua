@@ -49,4 +49,48 @@ if permissions_check() then
             questentries = quest,
         })
     end)
+
+    RegisterNUICallback('delquest', function(data, cb)
+        TriggerServerEvent(Config.scriptname..":delquest",data)
+        print("Delete Quest: "..data)
+        cb('ok')
+    end)
+
+    RegisterNUICallback('addquest', function(data,cb)
+        TriggerServerEvent(Config.scriptname..":addquest")
+        print("Adding New Quest")
+        cb('ok')
+    end)
+
+    RegisterNUICallback('editquest', function(data,cb)
+        TriggerServerEvent(Config.scriptname..":singlequest",data)
+        print("Single Quest")
+        cb('ok')
+    end)
+    RegisterNUICallback('savequest', function(data,cb)
+        TriggerServerEvent(Config.scriptname..":savequest",data)
+        print("Save Quest")
+        cb('ok')
+    end)
+
+    RegisterNetEvent(Config.scriptname..":singlequest")
+    AddEventHandler(Config.scriptname..":singlequest", function(data)
+        print("Single Quest return: "..json.encode(data))
+        SendNUIMessage({
+            quest_name = data.name,
+            quest_desc = data.desc,
+            quest_id=data.id,
+        })
+    end)
+    RegisterNUICallback('addquestentry', function(data,cb)
+        TriggerServerEvent(Config.scriptname..":addquestentry",data)
+        print("Adding New Quest Entry")
+        cb('ok')
+    end)
+    
+    RegisterNUICallback('delquestentry', function(data, cb)
+        TriggerServerEvent(Config.scriptname..":delquestentry",data)
+        print("Delete Quest Entry: "..json.encode(data))
+        cb('ok')
+    end)
 end

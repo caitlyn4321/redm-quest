@@ -17,12 +17,18 @@
         </div>
         <div class="form-outter-container" v-if="page==2">
             <ul>
-                <li v-for="quest in quests" @click="selectQuest(quest.id)">
+                <li v-for="quest in quests">
                     <div class="quest-item">{{ quest.name }} : {{quest.desc}}</div>
+                    <button @click="editQuest(quest.id)">Edit Quest</button>
+                    <button @click="selectQuest(quest.id)">View Steps</button>
+                </li>
+                <li>
+                    <button @click="addQuest()">Add Quest</button>
                 </li>
             </ul>
         </div>
         <div class="form-outter-container" v-if="page==3">
+
             <ul>
                 <li v-for="quest_entry in quest_entries"> <!--  @click="selectQuestEntry(quest_entry.id)" -->
                     <div class="quest-item">{{ quest_entry.quest }}-{{ quest_entry.id }}</div>
@@ -64,9 +70,36 @@
                     <div v-if="quest_entry.config.next">
                         Next Step: {{ quest_entry.config.next }}
                     </div>
+                    <button @click="editQuestEntry(quest_entry.id)">Edit Entry</button>
+                    <button @click="delQuestEntry(quest_entry.id)">Delete Entry</button>
                 </li>
             </ul>
-            <button @click="setpage(2)">Back</button>
+            <div>
+                <button @click="addQuestEntry(quest_id)">Add Quest</button>
+                <button @click="setpage(2)">Back</button>
+            </div>
+        </div>
+        <div class="form-outter-container" v-if="page==4">
+            <div class="form-inner-container">
+                <label for="quest_name">Quest Name:</label>
+                <input type="text" id="quest_name" v-model="quest_name">
+                <label for="quest_desc">Quest Description:</label>
+                <input type="text" id="quest_desc" v-model="quest_desc">
+                <button @click="saveQuest(quest_id)">Save</button>
+                <button @click="delQuest(quest_id)">Delete</button>
+                <button @click="setpage(2)">Back</button>
+            </div>
+        </div>
+        <div class="form-outter-container" v-if="page==5">
+            <div class="form-inner-container">
+                <label for="questentry.config.image">Quest Image:</label>
+                <input type="text" id="questentry.config.image" v-model="questentry.config.image">
+                <label for="questentry.config.desc">Quest Description:</label>
+                <input type="text" id="quest_desc" v-model="questentry.config.desc">
+                <button @click="saveQuest(quest_id)">Save</button>
+                <button @click="delQuest(quest_id)">Delete</button>
+                <button @click="setpage(2)">Back</button>
+            </div>
         </div>
     </div>
     <script src="app.js"></script>

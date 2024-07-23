@@ -158,38 +158,194 @@ AddEventHandler(Config.scriptname..":givemap", function(quest)
     exports.vorp_inventory:addItem(_source, Config.mapitem, 1, {quest = quest},nil)
 end)
 
-RegisterServerEvent(Config.scriptname..":listquests")
-AddEventHandler(Config.scriptname..":listquests", function()
-    local _source=source
+function listquests(_source, data)
+    local looping=false
 
-    exports.ghmattimysql:execute("SELECT * FROM quests;", {}, function(result)
+    print("list quests for: ".._source)
+    local queststring = ""
+    local quests = {}
+
+    if data then
+        queststring = " WHERE id = @id"
+    end
+
+    looping=true
+    exports.ghmattimysql:execute("SELECT * FROM quests"..queststring..";", {["@id"]=data}, function(result)
         if #result>0 then
-            local quests = {}
             for _,v in pairs(result) do
                 table.insert(quests, {id = v.id, name = v.name, desc = v.desc, config= json.decode(v.config)})
             end
-            TriggerClientEvent(Config.scriptname..":listquests", _source, quests)
+            
         end
+        looping=false
     end)
+    while looping do
+        Citizen.Wait(1)
+    end
+
+    return quests
+end
+
+RegisterServerEvent(Config.scriptname..":listquests")
+AddEventHandler(Config.scriptname..":listquests", function()
+    local _source=data or source
+
+    local quests=listquests(_source)
+    TriggerClientEvent(Config.scriptname..":listquests", _source, quests)
+end)
+
+RegisterServerEvent(Config.scriptname..":singlequest")
+AddEventHandler(Config.scriptname..":singlequest", function(data)
+    local _source=source
+
+    local quests=listquests(_source,data)
+    TriggerClientEvent(Config.scriptname..":singlequest", _source, quests[1])
 end)
 
 RegisterServerEvent(Config.scriptname..":viewquest")
-AddEventHandler(Config.scriptname..":viewquest", function(quest)
-    local _source=source
+AddEventHandler(Config.scriptname..":viewquest", function(quest,id)
+    local _source=id or source
 
-    print("Quest ID: "..quest)
+    print("View Quest ID: "..quest)
     exports.ghmattimysql:execute("SELECT * FROM quests_entries WHERE quest = @quest order by id asc;", {["@quest"] = quest}, function(result)
         print("After Query")
+        local quest_entries = {}
         if #result>0 then
             print("found results")
-            local quest_entries = {}
+            
             for _,v in pairs(result) do
                 table.insert(quest_entries, {quest = quest, id = v.id, desc = v.desc, config= json.decode(v.config)})
             end
-            TriggerClientEvent(Config.scriptname..":viewquest", _source, quest_entries)
             print("Sending back to client")
         else
             print("No results")
         end
+        TriggerClientEvent(Config.scriptname..":viewquest", _source, quest_entries)
     end)
+end)
+
+RegisterServerEvent(Config.scriptname..":delquest")
+AddEventHandler(Config.scriptname..":delquest", function(quest)
+    local _source=source
+    local looping = false
+
+    print("Del Quest ID: "..quest)
+    looping=true
+    exports.ghmattimysql:execute("delete FROM quests WHERE id = @quest limit 1;", {["@quest"] = quest}, function(result)
+        if result.affectedRows>0 then
+            exports.ghmattimysql:execute("delete FROM quests_entries WHERE quest = @quest;", {["@quest"] = quest}, nil)
+        end
+        looping=false
+    end)
+    while looping do
+        Citizen.Wait(1)
+    end
+
+    local quests=listquests(_source)
+    TriggerClientEvent(Config.scriptname..":listquests", _source, quests)
+end)
+
+RegisterServerEvent(Config.scriptname..":addquest")
+AddEventHandler(Config.scriptname..":addquest", function()
+    local _source=source
+    local looping = false
+
+    print("Add Quest")
+    looping=true
+    exports.ghmattimysql:execute("INSERT INTO quests (`name`, `desc`) VALUES (@name, @desc)",
+    {
+        ["@name"] = "An Exciting Quest",
+        ["@desc"] = "You are embarking on a journey",
+        ["@config"] = {},
+    }, function(result)
+        if result.insertId then
+            print("Inserted Quest: "..result.insertId)
+        end
+        looping=false
+    end)
+    while looping do
+        Citizen.Wait(1)
+    end
+
+    local quests=listquests(_source)
+    TriggerClientEvent(Config.scriptname..":listquests", _source, quests)
+end)
+
+RegisterServerEvent(Config.scriptname..":savequest")
+AddEventHandler(Config.scriptname..":savequest", function(data)
+    local _source=source
+    local looping = false
+
+    print("Update Quest")
+    looping=true
+    exports.ghmattimysql:execute("update quests SET name = @name, `desc` = @desc WHERE id = @id",
+    {
+        ["@name"] = data.name,
+        ["@desc"] = data.desc,
+        ["@id"] = data.id
+    }, function(result)
+        if result.affectedRows>0 then
+            print("Success - Updated Quest Rows: "..result.affectedRows)
+        else
+            print("Failed - Updated Quest Rows: "..result.affectedRows)
+        end
+        looping=false
+    end)
+    while looping do
+        Citizen.Wait(1)
+    end
+
+    local quests=listquests(_source)
+    TriggerClientEvent(Config.scriptname..":listquests", _source, quests)
+end)
+
+RegisterServerEvent(Config.scriptname..":addquestentry")
+AddEventHandler(Config.scriptname..":addquestentry", function(quest)
+    local _source=source
+    local looping = false
+
+    local config = {}
+    config.requirements = { items={}, coords = nil}
+    config.materials = { items={}, cash = 0}
+    config.rewards = { items={}, cash = 0}
+
+    print("Add Quest")
+    looping=true
+    exports.ghmattimysql:execute("INSERT INTO quests_entries (`quest`, `config`) VALUES (@quest, @config)",
+    {
+        ["@quest"] = quest,
+        ["@config"] = json.encode(config)
+    }, function(result)
+        if result.insertId then
+            print("Inserted Quest Entry: "..result.insertId)
+        end
+        looping=false
+    end)
+    while looping do
+        Citizen.Wait(1)
+    end
+
+    TriggerEvent(Config.scriptname..":viewquest", quest,_source)
+end)
+
+RegisterServerEvent(Config.scriptname..":delquestentry")
+AddEventHandler(Config.scriptname..":delquestentry", function(data)
+    local _source=source
+    local looping = false
+
+    print("Del Quest Entry ID: "..data.entry.." Quest: "..tonumber(data.quest))
+    looping=true
+    exports.ghmattimysql:execute("delete FROM quests_entries WHERE id = @quest;", {["@quest"] = data.entry}, function(result)
+        if result.affectedRows>0 then
+            print("Deleted Quest Entry Rows: "..result.affectedRows)
+        else
+            print("Failed - Deleted Quest Entry Rows: "..result.affectedRows)
+        end
+        looping=false
+    end)
+
+    while looping do
+        Citizen.Wait(1)
+    end
+    TriggerEvent(Config.scriptname..":viewquest", data.quest,_source)
 end)

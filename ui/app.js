@@ -7,6 +7,10 @@ const app = createApp({
             meta : null,
             quests: {},
             quest_entries: {},
+            quest_name: '',
+            quest_desc: '',
+            quest_id: 1,
+            questentry: {},
         };
     },
     methods: {
@@ -31,6 +35,14 @@ const app = createApp({
             if (event.data.questentries) {
                 this.quest_entries = event.data.questentries;
             }
+            if (event.data.quest_name) {
+                this.quest_name = event.data.quest_name;
+                this.quest_desc = event.data.quest_desc;
+                this.quest_id = event.data.quest_id;
+            }
+            if (event.data.questentry) {
+                this.questentry = event.data.questentry;
+            }
         },
         handleKeydown(event) {
             // Handle keydown event here
@@ -43,8 +55,71 @@ const app = createApp({
         },
         selectQuest(data) {
             this.setpage(3);
+            this.quest_id = data;
 
             fetch(`https://${GetParentResourceName()}/selectquest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        editQuest(data) {
+            this.setpage(4);
+            fetch(`https://${GetParentResourceName()}/editquest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        delQuest(data) {
+            this.setpage(2);
+            fetch(`https://${GetParentResourceName()}/delquest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        delQuestEntry(data) {
+            fetch(`https://${GetParentResourceName()}/delquestentry`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ entry :data, quest: this.quest_id})
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        addQuest() {
+            fetch(`https://${GetParentResourceName()}/addquest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify()
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        saveQuest(data) {
+            fetch(`https://${GetParentResourceName()}/savequest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({name: this.quest_name, desc: this.quest_desc, id: this.quest_id})
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        addQuestEntry(data) {
+            fetch(`https://${GetParentResourceName()}/addquestentry`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
