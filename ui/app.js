@@ -11,6 +11,7 @@ const app = createApp({
             quest_desc: '',
             quest_id: 1,
             questentry: {},
+            newrequirement: {item : null, count : 0},
         };
     },
     methods: {
@@ -88,7 +89,7 @@ const app = createApp({
             }).then(response => response.json())
               .then(result => {}).catch(error => {});
         },
-        delQuestEntry(data) {
+        delQuestEntry(data,quest) {
             fetch(`https://${GetParentResourceName()}/delquestentry`, {
                 method: 'POST',
                 headers: {
@@ -97,6 +98,7 @@ const app = createApp({
                 body: JSON.stringify({ entry :data, quest: this.quest_id})
             }).then(response => response.json())
               .then(result => {}).catch(error => {});
+              this.selectQuest(quest);
         },
         addQuest() {
             fetch(`https://${GetParentResourceName()}/addquest`, {
@@ -127,6 +129,43 @@ const app = createApp({
                 body: JSON.stringify(data)
             }).then(response => response.json())
               .then(result => {}).catch(error => {});
+        },
+        editQuestEntry(data) {
+            this.setpage(5);
+            fetch(`https://${GetParentResourceName()}/editquestentry`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        updateEntry() {
+            fetch(`https://${GetParentResourceName()}/updateentry`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.questentry)
+            }).then(response => response.json())
+              .then(result => {}).catch(error => {});
+        },
+        addRequirement(data) {
+            console.table(this.questentry.config.requirements.items);
+            switch(data) {
+                case 0:
+                    this.questentry.config.requirements.items.push({item: this.newrequirement.item, count: this.newrequirement.count});
+                    break;
+                case 1:
+                    this.questentry.config.materials.items.push({item: this.newrequirement.item, count: this.newrequirement.count});
+                    break;
+                case 2:
+                    this.questentry.config.rewards.items.push({item: this.newrequirement.item, count: this.newrequirement.count});
+                    break;
+            }
+            console.table(this.questentry.config.requirements.items);
+
         },
         close(data) {
             this.setpage(0);

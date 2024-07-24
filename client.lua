@@ -93,4 +93,24 @@ if permissions_check() then
         print("Delete Quest Entry: "..json.encode(data))
         cb('ok')
     end)
+
+    RegisterNUICallback('editquestentry', function(data,cb)
+        TriggerServerEvent(Config.scriptname..":editquestentry",data)
+        print("View Quest Entry: "..data)
+        cb('ok')
+    end)
+
+    RegisterNetEvent(Config.scriptname..":viewentry")
+    AddEventHandler(Config.scriptname..":viewentry", function(data)
+        print("Single Quest return: "..json.encode(data))
+        SendNUIMessage({
+            questentry = data,
+        })
+    end)
+
+    RegisterNUICallback('updateentry', function(data,cb)
+        TriggerServerEvent(Config.scriptname..":updateentry",data)
+        print("Update Quest Entry: "..data.id.." "..json.encode(data))
+        cb('ok')
+    end)
 end

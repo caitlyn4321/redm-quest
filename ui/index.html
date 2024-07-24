@@ -37,7 +37,9 @@
                     <div v-if="quest_entry.config.requirements">
                         Requirements:
                         <div class="requirement" v-if="quest_entry.config.requirements.coords">
-                            Coords:  &lt; {{ quest_entry.config.requirements.coords.x }}, {{ quest_entry.config.requirements.coords.y }}, {{ quest_entry.config.requirements.coords.z }} > Radius: {{ quest_entry.config.requirements.coords.r }}
+                            <tamplate v-if="quest_entry.config.requirements.coords.x!==0">
+                                Coords:  &lt; {{ quest_entry.config.requirements.coords.x }}, {{ quest_entry.config.requirements.coords.y }}, {{ quest_entry.config.requirements.coords.z }} > Radius: {{ quest_entry.config.requirements.coords.r }}
+                            </tamplate>
                         </div>
                         <template v-if="quest_entry.config.requirements.items">
                             <div class="requirement" v-for="requirement in quest_entry.config.requirements.items">
@@ -71,7 +73,7 @@
                         Next Step: {{ quest_entry.config.next }}
                     </div>
                     <button @click="editQuestEntry(quest_entry.id)">Edit Entry</button>
-                    <button @click="delQuestEntry(quest_entry.id)">Delete Entry</button>
+                    <!--<button @click="delQuestEntry(quest_entry.id)">Delete Entry</button>-->
                 </li>
             </ul>
             <div>
@@ -92,13 +94,60 @@
         </div>
         <div class="form-outter-container" v-if="page==5">
             <div class="form-inner-container">
-                <label for="questentry.config.image">Quest Image:</label>
-                <input type="text" id="questentry.config.image" v-model="questentry.config.image">
-                <label for="questentry.config.desc">Quest Description:</label>
-                <input type="text" id="quest_desc" v-model="questentry.config.desc">
-                <button @click="saveQuest(quest_id)">Save</button>
-                <button @click="delQuest(quest_id)">Delete</button>
-                <button @click="setpage(2)">Back</button>
+                <div>
+                <label for="questentry.config.image">Image:</label><input type="text" id="questentry.config.image" v-model="questentry.config.image">
+                <label for="questentry.config.desc">Description:</label><input type="text" id="quest_desc" v-model="questentry.config.desc">
+                </div>
+                <div>
+                    Requirements:
+                    <label for="questentry.config.requirements.coords">Coords:</label><input type="text" id="questentry.config.requirements.coords.x" v-model.number="questentry.config.requirements.coords.x"><input type="text" id="questentry.config.requirements.coords.y" v-model.number="questentry.config.requirements.coords.y"><input type="text" id="questentry.config.requirements.coords.z" v-model.number="questentry.config.requirements.coords.z"><label for="questentry.config.requirements.coords.r">Coords:</label><input type="text" id="questentry.config.requirements.coords.r" v-model.number="questentry.config.requirements.coords.r">
+                    <div>
+                        <ul>
+                            <li v-for="(requirement, index) in questentry.config.requirements.items" :key="index">
+                                {{requirement.item}} x {{requirement.count}}
+                                <button @click="questentry.config.requirements.items.splice(index, 1)">Delete</button>
+                            </li>
+                            <li>
+                                <label for="newrequirement.item">Item:</label><input type="text" id="newrequirement.item" v-model="newrequirement.item"><label for="newrequirement.count">Count:</label><input type="text" id="newrequirement.count" v-model.number="newrequirement.count">
+                                <button @click="addRequirement(0)">Add</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    Materials:
+                    <label for="questentry.config.materials.cash">Cash:</label><input type="text" id="questentry.config.materials.cash" v-model.number="questentry.config.materials.cash">
+                    <ul>
+                        <li v-for="(materials, index) in questentry.config.materials.items" :key="index">
+                            {{materials.item}} x {{materials.count}}
+                            <button @click="questentry.config.materials.items.splice(index, 1)">Delete</button>
+                        </li>
+                        <li>
+                            <label for="newrequirement.item">Item:</label><input type="text" id="newrequirement.item" v-model="newrequirement.item"><label for="newrequirement.count">Count:</label><input type="text" id="newrequirement.count" v-model.number="newrequirement.count">
+                            <button @click="addRequirement(1)">Add</button>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    Rewards:
+                    <label for="questentry.config.rewards.cash">Cash:</label><input type="text" id="questentry.config.rewards.cash" v-model.number="questentry.config.rewards.cash">
+                    <ul>
+                        <li v-for="(rewards, index) in questentry.config.rewards.items" :key="index">
+                            {{rewards.item}} x {{rewards.count}}
+                            <button @click="questentry.config.rewards.items.splice(index, 1)">Delete</button>
+                        </li>
+                        <li>
+                            <label for="newrequirement.item">Item:</label><input type="text" id="newrequirement.item" v-model="newrequirement.item"><label for="newrequirement.count">Count:</label><input type="text" id="newrequirement.count" v-model.number="newrequirement.count">
+                            <button @click="addRequirement(2)">Add</button>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <label for="questentry.config.next">Next Step:</label><input type="text" id="questentry.config.next" v-model.number="questentry.config.next">
+                </div>
+                <button @click="updateEntry()">Save</button>
+                <button @click="selectQuest(questentry.quest)">Back</button>
+                <button @click="delQuestEntry(questentry.id,questentry.quest)">Delete Entry</button>
             </div>
         </div>
     </div>

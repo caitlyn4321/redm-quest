@@ -23,6 +23,13 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
 		return
 	end
 
+    if questmap.metadata.failed then
+        print("Map failed")
+        VORPcore.NotifyObjective(_source, "This map is smudged and unreadable", 5000)
+        VORPinv.subItemID(_source, questmap.mainid,nil)
+        return
+    end
+
     if not questmap.metadata.quest then
         questmap=setStep(_source, questmap, nil, nil)
     elseif not questmap.metadata.step then
@@ -40,7 +47,7 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
 
     if requirements then
         if requirements.coords and passing then
-            if #(GetEntityCoords(GetPlayerPed(_source)) - vector3(requirements.coords.x, requirements.coords.y, requirements.coords.z)) > requirements.coords.r then
+            if #(GetEntityCoords(GetPlayerPed(_source)) - vector3(tonumber(requirements.coords.x), tonumber(requirements.coords.y), tonumber(requirements.coords.z))) > tonumber(requirements.coords.r) and tonumber(requirements.coords.x) ~= 0 then
                 passing = false
             end
         end
@@ -49,12 +56,13 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
             for _,v in pairs(requirements.items) do
                 local count= exports.vorp_inventory:getItemCount(_source, nil, v.item,nil)
                 print("Item: "..v.item.." Count: "..count.." Required: "..v.count)
-                if count < v.count then
+                if count < tonumber(v.count) then
                     passing = false
                 end
             end
         end
     end
+    print("After Requirements")
     if materials and passing then
         if materials.items then
             for _,v in pairs(materials.items) do
@@ -70,6 +78,7 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
             end
         end
     end
+    print("After Materials")
     if rewards and passing then
         if rewards.items then
             for k,v in pairs(rewards.items) do
@@ -80,12 +89,12 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
             end
         end
     end
-
+    print("After Rewards")
     if passing then
         if materials then
             if materials.items then
                 for _,v in pairs(materials.items) do
-                    exports.vorp_inventory:subItem(_source, v.item, v.count, nil, nil)
+                    exports.vorp_inventory:subItem(_source, v.item, tonumber(v.count), nil, nil)
                 end
             end
             if materials.cash then
@@ -95,7 +104,7 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
         if rewards then
             if rewards.items then
                 for _,v in pairs(rewards.items) do
-                    exports.vorp_inventory:addItem(_source, v.item, v.count, nil,nil)
+                    exports.vorp_inventory:addItem(_source, v.item, tonumber(v.count), nil,nil)
                 end
             end
             if rewards.cash then
@@ -107,7 +116,7 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
         end
 
     end
-
+    print("After Passing")
 
     TriggerClientEvent(Config.scriptname..":displayquest", _source, questmap)
 end)
@@ -116,6 +125,7 @@ function setStep(_source, questmap, quest, step)
     local looping = false
     local _quest = quest or Config.defaultquest
     local _step = step
+    local found = false
 
     looping = true
     if not _step then
@@ -125,6 +135,7 @@ function setStep(_source, questmap, quest, step)
                 local meta = { quest = _quest, step = _step }
                 if result[1].config then
                     meta.config = json.decode(result[1].config)
+                    found=true
                 end
                 questmap.metadata = meta
             end
@@ -138,6 +149,7 @@ function setStep(_source, questmap, quest, step)
                 local meta = { quest = _quest, step = _step }
                 if result[1].config then
                     meta.config = json.decode(result[1].config)
+                    found=true
                 end
                 questmap.metadata = meta
             end
@@ -147,7 +159,11 @@ function setStep(_source, questmap, quest, step)
     while looping do
         Citizen.Wait(1)
     end
-    exports.vorp_inventory:setItemMetadata(_source, questmap.mainid, questmap.metadata, 1)
+    if found then
+        exports.vorp_inventory:setItemMetadata(_source, questmap.mainid, questmap.metadata, 1)
+    else
+        exports.vorp_inventory:setItemMetadata(_source, questmap.mainid, {failed = true}, 1)
+    end
     return questmap
 end
 
@@ -305,9 +321,11 @@ AddEventHandler(Config.scriptname..":addquestentry", function(quest)
     local looping = false
 
     local config = {}
-    config.requirements = { items={}, coords = nil}
+    config.requirements = { items={}, coords = {x=0,y=0,z=0,r=0}}
     config.materials = { items={}, cash = 0}
     config.rewards = { items={}, cash = 0}
+    config.image = nil
+    config.next=1
 
     print("Add Quest")
     looping=true
@@ -348,4 +366,51 @@ AddEventHandler(Config.scriptname..":delquestentry", function(data)
         Citizen.Wait(1)
     end
     TriggerEvent(Config.scriptname..":viewquest", data.quest,_source)
+end)
+
+RegisterServerEvent(Config.scriptname..":editquestentry")
+AddEventHandler(Config.scriptname..":editquestentry", function(quest,id)
+    local _source=id or source
+
+    print("View Quest entry ID: "..quest)
+    exports.ghmattimysql:execute("SELECT * FROM quests_entries WHERE id = @quest limit 1;", {["@quest"] = quest}, function(result)
+        print("After Query")
+        local quest_entry = {}
+        if #result>0 then
+            print("found results")
+            
+            quest_entry= {quest = result[1].quest, id = result[1].id, config= json.decode(result[1].config)}
+
+            print("Sending back to client")
+        else
+            print("No results")
+        end
+        TriggerClientEvent(Config.scriptname..":viewentry", _source, quest_entry)
+    end)
+end)
+
+RegisterServerEvent(Config.scriptname..":updateentry")
+AddEventHandler(Config.scriptname..":updateentry", function(data)
+    local _source=source
+    local looping = false
+
+    print("Update Entry")
+    looping=true
+    exports.ghmattimysql:execute("update quests_entries SET config = @config WHERE id = @id",
+    {
+        ["@config"] = json.encode(data.config),
+        ["@id"] = data.id
+    }, function(result)
+        if result.affectedRows>0 then
+            print("Success - Updated Entry Rows: "..result.affectedRows)
+        else
+            print("Failed - Updated Entry Rows: "..result.affectedRows)
+        end
+        looping=false
+    end)
+    while looping do
+        Citizen.Wait(1)
+    end
+
+    TriggerEvent(Config.scriptname..":editquestentry", data.id, _source)
 end)
