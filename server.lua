@@ -23,18 +23,18 @@ VORPinv.RegisterUsableItem(Config.mapitem, function(data)
 		return
 	end
 
-    if questmap.metadata.failed then
-        print("Map failed")
-        VORPcore.NotifyObjective(_source, "This map is smudged and unreadable", 5000)
-        VORPinv.subItemID(_source, questmap.mainid,nil)
-        return
-    end
-
     if not questmap.metadata.quest then
         questmap=setStep(_source, questmap, nil, nil)
     elseif not questmap.metadata.step then
         questmap=setStep(_source, questmap, questmap.metadata.quest, nil)
 	end
+
+    if questmap.metadata.failed then
+        print("Map failed")
+        VORPcore.NotifyObjective(_source, "This map is smudged and unreadable. It crumbles in your hands", 5000)
+        VORPinv.subItemID(_source, questmap.mainid,nil)
+        return
+    end
 
     local requirements = questmap.metadata.config.requirements or nil
     local materials = questmap.metadata.config.materials or nil
