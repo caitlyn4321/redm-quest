@@ -1,4 +1,5 @@
 .form-outter-container {
+    font-family: "Rye", serif;
     height: 55vh; /* 100% - 10% top margin - 10% bottom margin */
     margin: 20vh; /* 10% margin from all sides */
     padding: 1em; /* Optional: some padding to ensure form doesn't touch the edges */
@@ -11,6 +12,7 @@
     flex-direction: column; /* Align children vertically */
     justify-content: space-between; /* Align children to the bottom */
     overflow-y:auto;
+    color: #292421; /* dark brown text */
 }
 
 .form-outter-container img {
@@ -20,23 +22,111 @@
     margin: auto; /* Centers horizontally */
 }
 
-.form-outter-container ul li {
-    margin-left: 0;
-    padding-left: 0;
-}
-
-.form-outter-container ul li {
+.li-div {
+    display:block;
     list-style-type: none; /* Remove bullet points */
     margin: 0.5em 0; /* Add some space between list items */
     border: 1px solid black; /* Add a thin black border */
     border-radius: 5px; /* Round the corners of the border */
-    background-color:rgb(202, 184, 130);
+    /* background-color:rgb(202, 184, 130);*/
+    background-color: #BDB6A5; /* parchment background */
     margin-left: 0;
     padding: 0.5em; /* Add some padding inside the border */
 }
 
-.form-outter-container ul li img {
-    list-style-type: none; /* Remove bullet points */
-    height: 100px; /* Set a fixed height */
-    width: auto;
+.li-div button {
+    background-color: #433a32b0; /* Charcoal Gray background */
+    color: #ebdab5; /* Light Taupe text */
+    padding: 5px 10px;
+    font-family: 'Courier', monospace; /* Or another typewriter-style font */
+    font-size: 12px;
+    border: 2px solid #806B5A; /* Walnut Brown border */
+    border-radius: 5px;
+    text-transform: uppercase; /* Gives a more utilitarian feel */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25); /* Optional: adds depth */
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 2px #000000, /* Dark shadow for depth */
+    -1px -1px 2px #ffffff; /* Light shadow for highlight */
+}
+
+.li-div button:hover {
+    background-color: #556B2F; /* Dark Olive for hover */
+    color: #F5F5DC; /* Creamy White for hover text */
+    cursor: pointer;
+    text-shadow: 1px 1px 2px #000000, /* Dark shadow for depth */
+    -1px -1px 2px #ffffff; /* Light shadow for highlight */
+}
+
+.right-quest, .right-quest img {
+    width: 200px; /* Set a fixed height */
+    height: auto;
+    padding: 1%;
+}
+
+.right-quest img {
+    border: 2px solid black; /* Add a thin black border */
+}
+
+.left-quest {
+    width: 100%;
+    align-items: top;
+}
+
+.quest-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Optional: vertically center the items */
+    width: auto; 
+    border-bottom: 2px solid #938e8267; /* Add a bottom border */
+}
+
+.left-quest h3, .left-quest p {
+    font-size: 100%;
+    display: inline;
+    padding: 0;
+    margin: 0;
+    margin-top: 0px;
+}
+
+.left-quest div {
+    display: flex; /* Ensure the parent is a flex container */
+}
+
+.left-quest div ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: auto;
+    align-items: right;
+    text-align:right;
+}
+
+.left-quest div ul div li {
+    text-align: right;
+    border-radius: 10px;
+    list-style-type: none;
+    background-color: #433a32b0; /* Charcoal Gray background */
+    color: #ebdab5; /* Light Taupe text */
+    padding: 2px;
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.5), /* Light inner shadow for top-left */
+    inset -2px -2px 5px rgba(0, 0, 0, 0.5); /* Dark inner shadow for bottom-right */
+}
+
+.left-quest p {
+    font-family: courier;
+    text-decoration: underline;
+}
+
+.form-outter-container::-webkit-scrollbar {
+    width: 8px; /* Thinner scrollbar width */
+}
+
+.form-outter-container::-webkit-scrollbar-track {
+    background: none; /* No background for the track */
+}
+
+.form-outter-container::-webkit-scrollbar-thumb {
+    background-color: #5c3a0f; /* Match the text color */
+    border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+    border: 2px solid transparent; /* Add some space around the thumb */
+    background-clip: content-box; /* Ensure the border is visible */
 }

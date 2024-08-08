@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel="stylesheet">
-    <!--<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>-->
     <script src="vendor/vue.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,67 +17,87 @@
             <p>{{ meta.config.desc }}</p>
         </div>
         <div class="form-outter-container" v-if="page==2">
-            <ul>
-                <li v-for="quest in quests">
-                    <div class="quest-item">{{ quest.name }} : {{quest.desc}}</div>
+            <div>
+                <div class="li-div" v-for="quest in quests">
+                    <div>{{ quest.name }} : {{quest.desc}}</div>
                     <button @click="editQuest(quest.id)">Edit Quest</button>
                     <button @click="selectQuest(quest.id)">View Steps</button>
-                </li>
-                <li>
-                    <button @click="addQuest()">Add Quest</button>
-                </li>
-            </ul>
+                </div>
+            </div>
+            <div class="li-div" >
+                <button @click="addQuest()">Add Quest</button>
+            </div>
         </div>
         <div class="form-outter-container" v-if="page==3">
-
-            <ul>
-                <li v-for="quest_entry in quest_entries"> <!--  @click="selectQuestEntry(quest_entry.id)" -->
-                    <div class="quest-item">{{ quest_entry.quest }}-{{ quest_entry.id }}</div>
-                    <img :src=quest_entry.config.image alt="Quest Image" class="quest-image" v-if="quest_entry.config.image">
-                    <div class="quest-item" v-if="quest_entry.config.desc">{{ quest_entry.config.desc }}</div>
-                    <div v-if="quest_entry.config.requirements">
-                        Requirements:
-                        <div class="requirement" v-if="quest_entry.config.requirements.coords">
-                            <tamplate v-if="quest_entry.config.requirements.coords.x!==0">
-                                Coords:  &lt; {{ quest_entry.config.requirements.coords.x }}, {{ quest_entry.config.requirements.coords.y }}, {{ quest_entry.config.requirements.coords.z }} > Radius: {{ quest_entry.config.requirements.coords.r }}
-                            </tamplate>
-                        </div>
-                        <template v-if="quest_entry.config.requirements.items">
-                            <div class="requirement" v-for="requirement in quest_entry.config.requirements.items">
-                                {{ requirement.item }} x {{ requirement.count }}
-                            </div>
-                        </template>
-                    </div>
-                    <div v-if="quest_entry.config.materials">
-                        Materials:
-                        <div class="requirement" v-if="quest_entry.config.materials.cash">
-                            Cash {{ quest_entry.config.materials.cash }}
-                        </div>
-                        <template v-if="quest_entry.config.materials.items">
-                            <div class="requirement" v-for="requirement in quest_entry.config.materials.items">
-                                {{ requirement.item }} x {{ requirement.count }}
-                            </div>
-                        </template>
-                    </div>
-                    <div v-if="quest_entry.config.rewards">
-                        Rewards:
-                        <div class="requirement" v-if="quest_entry.config.rewards.cash">
-                            Cash {{ quest_entry.config.rewards.cash }}
-                        </div>
-                        <template v-if="quest_entry.config.rewards.items">
-                            <div class="requirement" v-for="requirement in quest_entry.config.rewards.items">
-                                {{ requirement.item }} x {{ requirement.count }}
-                            </div>
-                        </template>
-                    </div>
-                    <div v-if="quest_entry.config.next">
-                        Next Step: {{ quest_entry.config.next }}
-                    </div>
-                    <button @click="editQuestEntry(quest_entry.id)">Edit Entry</button>
-                    <!--<button @click="delQuestEntry(quest_entry.id)">Delete Entry</button>-->
-                </li>
-            </ul>
             <div>
+                <div class="li-div quest-item" v-for="quest_entry in quest_entries">
+                    <div class="left-quest">
+                        <div class="quest-item"><h3>Quest:</h3> <p>{{ quest_entry.quest }}</p></div>
+                        <div class="quest-item"><h3>Step:</h3> <p>{{ quest_entry.id }}</p></div>
+                        <div class="quest-item" v-if="quest_entry.config.requirements">
+                            <h3>Requirements:</h3>
+                            <ul>
+                                <div class="requirement" v-if="quest_entry.config.requirements.coords">
+                                    <template v-if="quest_entry.config.requirements.coords.x!==0">
+                                        <li><h3>Coords:</h3>  <p>&lt; {{ quest_entry.config.requirements.coords.x }}, {{ quest_entry.config.requirements.coords.y }}, {{ quest_entry.config.requirements.coords.z }} ></p> <h3>Radius:</h3> <p>{{ quest_entry.config.requirements.coords.r }}</p></li>
+                                    </template>
+                                </div>
+                                <template v-if="quest_entry.config.requirements.items && quest_entry.config.rewards.items.length > 0">
+                                    <div class="requirement" v-for="requirement in quest_entry.config.requirements.items">
+                                        <li><p>{{ requirement.item }} x {{ requirement.count }}</p></li>
+                                    </div>
+                                </template>
+                                <div class="requirement" v-else>
+                                    <li>No Items</li>
+                                </div>
+                            </ul>
+                        </div>
+                        <div class="quest-item" v-if="quest_entry.config.materials">
+                            <h3>Materials:</h3>
+                            <ul>
+                                <div class="requirement" v-if="quest_entry.config.materials.cash">
+                                    <li><h3>Cash:</h3> <p>{{ quest_entry.config.materials.cash }}</p></li>
+                                </div>
+                                <template v-if="quest_entry.config.materials.items && quest_entry.config.materials.items.length > 0">
+                                    <div class="requirement" v-for="requirement in quest_entry.config.materials.items">
+                                        <li><p>{{ requirement.item }} x {{ requirement.count }}</p></li>
+                                    </div>
+                                </template>
+                                <div class="requirement" v-else>
+                                    <li>No Items</li>
+                                </div>
+                            </ul>
+                        </div>
+                        <div class="quest-item" v-if="quest_entry.config.rewards">
+                            <h3>Rewards:</h3>
+                            <ul>
+                                <div class="requirement" v-if="quest_entry.config.rewards.cash">
+                                    <li>><h3>Cash</h3> <p>{{ quest_entry.config.rewards.cash }}</p></li>
+                                </div>
+                                <template v-if="quest_entry.config.rewards.items && quest_entry.config.rewards.items.length > 0">
+                                    <div class="requirement" v-for="requirement in quest_entry.config.rewards.items">
+                                        <li><p>{{ requirement.item }} x {{ requirement.count }}</p></li>
+                                    </div>
+                                </template>
+                                <div class="requirement" v-else>
+                                    <li>No Items</li>
+                                </div>
+                            </ul>
+                        </div>
+                        <div class="quest-item" v-if="quest_entry.config.next">
+                            <h3>Next Step:</h3> <p>{{ quest_entry.config.next }}</p>
+                        </div>
+                        <div>
+                            <button @click="editQuestEntry(quest_entry.id)">Edit Entry</button>
+                        </div>
+                    </div>
+                    <div class="right-quest">
+                        <img :src=quest_entry.config.image alt="Quest Image" class="quest-image" v-if="quest_entry.config.image">
+                        <div v-if="quest_entry.config.desc">{{ quest_entry.config.desc }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="li-div">
                 <button @click="addQuestEntry(quest_id)">Add Quest</button>
                 <button @click="setpage(2)">Back</button>
             </div>
